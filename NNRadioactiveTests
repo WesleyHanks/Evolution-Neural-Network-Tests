@@ -1,0 +1,37 @@
+import random, Math
+
+TOP = 0
+LEFT = 0
+BOTTOM = 500
+RIGHT = 500
+
+
+class creature:
+    
+    def __init__(self, x, y, NNWeights=[[0,0,0,0], [0,0,0,0], [0,0,0,0], [0,0,0,0]):
+        self.NNWeights = NNWeights
+        self.x = x
+        self.y = y
+        self.fitness = 0
+    
+    def determineDecision(self):
+        values = [0, 0, 0, 0]
+        greatest = 0
+        for i in range(0, 4):
+            values[i] = NNWeights[i, 0]
+            if i > 0:
+                if values[i] > values[i-1]:
+                    greatest = i
+        
+        if i == 0:
+            return "up"
+        if i == 1:
+            return "left"
+        if i == 2:
+            return "down"
+        if i == 3:
+            return "right"
+            
+
+
+
