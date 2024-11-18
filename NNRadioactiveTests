@@ -1,4 +1,4 @@
-import random, Math
+import random
 TOP = 0
 LEFT = 0
 BOTTOM = 500
@@ -16,7 +16,7 @@ class Creature:
         values = [0, 0, 0, 0]
         greatest = 0
         for i in range(0, 4):
-            values[i] = self.NNWeights[i, 0] * self.y + self.NNWeights[i, 1] * self.x + self.NNWeights[i, 2] * BOTTOM-self.y + self.NNWeights[i, 3] * RIGHT-self.x
+            values[i] = self.NNWeights[i][0] * self.y + self.NNWeights[i][1] * self.x + self.NNWeights[i][2] * BOTTOM-self.y + self.NNWeights[i][3] * RIGHT-self.x
             if i > 0:
                 if values[i] > values[i-1]:
                     greatest = i
@@ -41,20 +41,77 @@ class Creature:
             self.x += 1
         
     def firstInLineSetup(self):
-        for i in range(0, len(NNWeights)):
-            for j in range(0, len(NNWeights[i])):
-                self.NNWeights[i, j] = (random.random() * 2) - 1
+        for i in range(0, len(self.NNWeights)):
+            for j in range(0, len(self.NNWeights[i])):
+                self.NNWeights[i][j] = (random.random() * 2) - 1
                 
     def mutateSelf(self):
         for i in range(0, len(NNWeights)):
             for j in range(0, len(NNWeights[i])):
                 if random.randint(0, 100) == 0:
-                    self.NNWeights[i, j] = (random.random() * 2) - 1
+                    self.NNWeights[i][j] = (random.random() * 2) - 1
     
     def mitosis(self):
-        self.x = 0 #FIND MIDDLE
-        self.y = 0 #SAME HERE
+        global RIGHT, BOTTOM
+        self.x = RIGHT/2
+        self.y = BOTTOM/2
         spawn = []
         for i in range(0, 5):
-            #add a creature to the list with each iteration. Have each creature run mutateSelf
+            spawn[i] = Creature(self.x, self.y, self.NNWeights)
+            spawn[i].mutateSelf()
+        return spawn
+        
+        
+def eliminateTheWeak():
+    global allCreatures
+    bounds = (250, 250)
+    adjustment = 0
+    for i in range(0, len(allCreatures)):
+        if allCreatures[i-adjustment].x > bounds[0] or allCreatures[i-adjustment].y > bounds[1]:
+            del(allCreatures[i-adjustment])
+            adjustment += 1
+    
+def repopulate():
+    global allCreatures
+    for i in range(0, len(allCreatures)):
+        for j in range(0, 5):
+            allCreatures.append(allCreatures[i])
+            allCreatures[(i*5)+j].mitosis()
 
+def initializeFirstGeneration():
+    global allCreatures, RIGHT, BOTTOM
+    #Second arg in range = initial population size
+    for i in range(0, 20):
+        allCreatures.append(Creature(
+            RIGHT/2, 
+            BOTTOM/2, 
+            NNWeights=[[0,0,0,0], [0,0,0,0], [0,0,0,0], [0,0,0,0]]
+            ))
+        allCreatures[i].firstInLineSetup()
+
+
+
+
+    
+allCreatures = []
+
+initializeFirstGeneration()
+
+#Second arg here dictates the number of recursions/generations
+for i in range(0, 20):
+    #Second arg dictates the number of movements the creatures get
+    for j in range(0, 90):
+        if len(allCreatures) == 0:
+            sys.exit("Population extinct")
+        for creature in allCreatures:
+            print(i, j)
+            creature.moveSelf()
+    
+    eliminateTheWeak()
+    repopulate()
+
+print(allCreatures.NNWeights)
+    
+    
+    
+    
