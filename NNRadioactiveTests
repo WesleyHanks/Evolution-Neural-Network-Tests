@@ -1,4 +1,4 @@
-import random
+import random, sys
 TOP = 0
 LEFT = 0
 BOTTOM = 500
@@ -46,8 +46,8 @@ class Creature:
                 self.NNWeights[i][j] = (random.random() * 2) - 1
                 
     def mutateSelf(self):
-        for i in range(0, len(NNWeights)):
-            for j in range(0, len(NNWeights[i])):
+        for i in range(0, len(self.NNWeights)):
+            for j in range(0, len(self.NNWeights[i])):
                 if random.randint(0, 100) == 0:
                     self.NNWeights[i][j] = (random.random() * 2) - 1
     
@@ -57,26 +57,25 @@ class Creature:
         self.y = BOTTOM/2
         spawn = []
         for i in range(0, 5):
-            spawn[i] = Creature(self.x, self.y, self.NNWeights)
+            spawn.append(Creature(self.x, self.y, self.NNWeights))
             spawn[i].mutateSelf()
         return spawn
         
         
 def eliminateTheWeak():
     global allCreatures
-    bounds = (250, 250)
+    bounds = (250, 0)
     adjustment = 0
     for i in range(0, len(allCreatures)):
-        if allCreatures[i-adjustment].x > bounds[0] or allCreatures[i-adjustment].y > bounds[1]:
+        if allCreatures[i-adjustment].x > bounds[0] and allCreatures[i-adjustment].y > bounds[1]:
             del(allCreatures[i-adjustment])
             adjustment += 1
     
 def repopulate():
     global allCreatures
     for i in range(0, len(allCreatures)):
-        for j in range(0, 5):
-            allCreatures.append(allCreatures[i])
-            allCreatures[(i*5)+j].mitosis()
+        for creature in allCreatures[i].mitosis():
+            allCreatures.append(creature)
 
 def initializeFirstGeneration():
     global allCreatures, RIGHT, BOTTOM
@@ -89,11 +88,19 @@ def initializeFirstGeneration():
             ))
         allCreatures[i].firstInLineSetup()
 
-
+def curbOverpopulation(maxPopulation):
+    global allCreatures
+    maxPopulation -= 1
+    adjustment = 0
+    for i in range(0, len(allCreatures)):
+        if i > maxPopulation:
+            del(allCreatures[i-adjustment])
+            adjustment += 1
 
 
     
 allCreatures = []
+lastPopulation = []
 
 initializeFirstGeneration()
 
@@ -102,16 +109,20 @@ for i in range(0, 20):
     #Second arg dictates the number of movements the creatures get
     for j in range(0, 90):
         if len(allCreatures) == 0:
-            sys.exit("Population extinct")
+            print(lastPopulation)
+            for creature in lastPopulation:
+                print(creature.NNWeights)
+            sys.exit(lastPopulation[0])
         for creature in allCreatures:
-            print(i, j)
             creature.moveSelf()
     
+    print("\nGeneration: " + str(i))
+    print(len(allCreatures))
+    lastPopulation = allCreatures
+    print(lastPopulation)
     eliminateTheWeak()
     repopulate()
+    curbOverpopulation(100)
 
 print(allCreatures.NNWeights)
-    
-    
-    
-    
+
