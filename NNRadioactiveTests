@@ -109,20 +109,24 @@ for i in range(0, 20):
     #Second arg dictates the number of movements the creatures get
     for j in range(0, 90):
         if len(allCreatures) == 0:
-            print(lastPopulation)
             for creature in lastPopulation:
-                print(creature.NNWeights)
-            sys.exit(lastPopulation[0])
+                #PRINTING NN WEIGHTS
+                print("]\n\n[", end=" ")
+                for weightsList in creature.NNWeights:
+                    for weight in weightsList:
+                        print(round(weight, 3), end=",")
+                    print("]\n[", end=", ")
+                
+            sys.exit("Population deceased :(")
         for creature in allCreatures:
             creature.moveSelf()
     
     print("\nGeneration: " + str(i))
     print(len(allCreatures))
-    lastPopulation = allCreatures
-    print(lastPopulation)
+    for i in range(0, len(allCreatures)):
+        lastPopulation.append(allCreatures[i])
     eliminateTheWeak()
     repopulate()
     curbOverpopulation(100)
 
 print(allCreatures.NNWeights)
-
