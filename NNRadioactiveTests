@@ -1,8 +1,15 @@
-import random, sys
+import random, sys, pygame, time as tm
+from pygame import *
 TOP = 0
 LEFT = 0
 BOTTOM = 500
 RIGHT = 500
+
+pygame.init()
+
+DISPLAY = pygame.display.set_mode((BOTTOM,RIGHT))
+pygame.display.set_caption("Evo Radiation Tests")
+
 class Creature:
     
     def __init__(self, x, y, NNWeights=[[0,0,0,0], [0,0,0,0], [0,0,0,0], [0,0,0,0]]):
@@ -70,6 +77,11 @@ def eliminateTheWeak():
         if allCreatures[i-adjustment].x > bounds[0] and allCreatures[i-adjustment].y > bounds[1]:
             del(allCreatures[i-adjustment])
             adjustment += 1
+    pygame.draw.rect(DISPLAY, (0,255,0), pygame.Rect(250, 0, 500, 500))
+    pygame.display.update()
+    acc = 0
+    while acc < 100000:
+        acc += 1
     
 def repopulate():
     global allCreatures
@@ -117,14 +129,24 @@ for i in range(0, 20):
                         print(round(weight, 3), end=",")
                     print("]\n[", end=", ")
                 
-            sys.exit("Population deceased :(")
+            sys.exit("Population deceased :(\nGeneration reached: " + str(i))
         for creature in allCreatures:
             creature.moveSelf()
+
+        #DO SCREEN DISPLAY STUFF
+        DISPLAY.fill((255,255,255))
+
+        for creature in allCreatures:
+            pygame.draw.rect(DISPLAY, (255, 0, 0), pygame.Rect(creature.x,creature.y,1,1))
+        
+        tm.sleep(0.1)
+        pygame.display.update()
     
     print("\nGeneration: " + str(i))
     print(len(allCreatures))
     for i in range(0, len(allCreatures)):
         lastPopulation.append(allCreatures[i])
+    print(allCreatures[0].NNWeights)
     eliminateTheWeak()
     repopulate()
     curbOverpopulation(100)
